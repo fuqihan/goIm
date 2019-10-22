@@ -2,66 +2,97 @@ package goIm
 
 import (
 	"fmt"
+	"github.com/goinggo/mapstructure"
 	"net"
 	"sync"
 )
 
-type UserMap struct {
+type LocalUser struct {
 	user map[string]net.Conn // key remoteIp
 	mu   sync.Mutex
 }
 
-type ConnMap struct {
-	conn map[*net.Conn]string
+type LocalConn struct {
+	conn map[net.Conn]string
 	mu   sync.Mutex
 }
 
-type ReadStruct struct {
-	Pmd  int
-	Data string
+type ReadSApi struct {
+	Pmd   int
+	Token string
+	Data  interface{}
 }
 
 var (
-	userMap = &UserMap{user: make(map[string]net.Conn)}
-	connMap = &ConnMap{conn: make(map[*net.Conn]string)}
+	localUser   = &LocalUser{user: make(map[string]net.Conn)}
+	localConn   = &LocalConn{conn: make(map[net.Conn]string)}
+	singleLogic = NewSingleLogic()
+	roomLogic   = NewRoomLogic()
 )
 
 /**
 读取文件处理
 */
 func ConnHandle(conn net.Conn, str string) {
-	m := new(ReadStruct)
+	m := new(ReadSApi)
 	// TODO  添加配置支持proto
 	ParseJson(str, m)
 	// 判读
-	if m.Pmd == Pmd_LOGIN && m.Data != "" {
-		userMap.mu.Lock()
-		connMap.mu.Lock()
+	if m.Pmd == PMD_LOGIN && m.Token != "" {
+		localUser.mu.Lock()
+		defer localUser.mu.Unlock()
+		localConn.mu.Lock()
+		defer localConn.mu.Unlock()
 		// TODO token解析 支持传入fn
-		if oriConn, ok := userMap.user[m.Data]; ok {
-			EmitMessage(oriConn, "login change")
-			delete(connMap.conn, &oriConn)
+		userId := m.Token
+		if oriConn, ok := localUser.user[userId]; ok {
+			SendConnMessage(oriConn, "login change")
+			delete(localConn.conn, oriConn)
 			//oriConn.Close()
 		}
-		userMap.user[m.Data] = conn
-		connMap.conn[&conn] = m.Data
-		userMap.mu.Unlock()
-		connMap.mu.Unlock()
-		EmitMessage(conn, "asasassa")
-		fmt.Println(connMap.conn)
+		localUser.user[userId] = conn
+		localConn.conn[conn] = userId
+		SendConnMessage(conn, "login success")
+		fmt.Println(localUser.user)
 		return
 	}
-	if _, ok := connMap.conn[&conn]; ok {
-		emitMethod(conn, m.Pmd, m.Data)
+	forRoute(conn, m.Pmd, m.Data)
+	//if _, ok := connMap.conn[conn]; ok {
+	//	fmt.Println(connMap.conn[conn])
+	//
+	//	emitMethod(conn, m.Pmd, m.Data)
+	//}
+}
+
+func SendUserMessage(userId string, str string) {
+	if conn, ok := localUser.user[userId]; ok {
+		SendConnMessage(conn, str)
 	}
 }
 
 /**
 分发请求
 */
-func emitMethod(conn net.Conn, pmd int, data string) {
+func forRoute(conn net.Conn, pmd int, data interface{}) {
+
 	switch pmd {
+	case PMD_SINGLE_SEND_MESSAGE:
+		var m SendMessageApi
+		mapDecode(data, m)
+		singleLogic.SendMessage(conn, localConn.conn[conn], m)
+		break
+	case PMD_ROOM_JOIN:
+		var m JoinRoomApi
+		mapDecode(data, m)
+		roomLogic.Join(conn, m)
+		break
 	default:
 		break
+	}
+}
+
+func mapDecode(a interface{}, b interface{}) {
+	if err := mapstructure.Decode(a, &b); err != nil {
+		fmt.Println(err)
 	}
 }
