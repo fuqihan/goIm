@@ -77,12 +77,12 @@ func forRoute(conn net.Conn, pmd int, data interface{}) {
 
 	switch pmd {
 	case PMD_SINGLE_SEND_MESSAGE:
-		var m SendMessageApi
+		var m = new(SendMessageApi)
 		mapDecode(data, m)
 		singleLogic.SendMessage(conn, localConn.conn[conn], m)
 		break
 	case PMD_ROOM_JOIN:
-		var m JoinRoomApi
+		var m = new(JoinRoomApi)
 		mapDecode(data, m)
 		roomLogic.Join(conn, m)
 		break
@@ -92,7 +92,7 @@ func forRoute(conn net.Conn, pmd int, data interface{}) {
 }
 
 func mapDecode(a interface{}, b interface{}) {
-	if err := mapstructure.Decode(a, &b); err != nil {
+	if err := mapstructure.Decode(a, b); err != nil {
 		fmt.Println(err)
 	}
 }

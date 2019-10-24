@@ -23,8 +23,11 @@ func TestBootstrapRepeat(t *testing.T) {
 	}
 }
 
+/*
+	文件写测试
+*/
 func TestRead(t *testing.T) {
-	if conn, err := InitDial(iPort); err == nil {
+	if conn, err := InitTestDial(iPort); err == nil {
 		str := "asasaasasasdfksldfjlkfjslfkjslfkjslfjksfjsdlf"
 		n, _ := conn.Write([]byte(str))
 		fmt.Println(n)
@@ -32,7 +35,10 @@ func TestRead(t *testing.T) {
 	}
 }
 
-func InitDial(port string) (net.Conn, error) {
+/*
+	初始化客户端连接
+*/
+func InitTestDial(port string) (net.Conn, error) {
 	address := ":" + port
 	if conn, err := net.Dial("tcp", address); err == nil {
 		return conn, nil
@@ -46,4 +52,9 @@ func InitDial(port string) (net.Conn, error) {
 
 		}
 	}
+}
+
+func IniTestLogin(conn net.Conn, userId string) {
+	str := fmt.Sprintf(`{"pmd": %d, "token":"%s"}`, PMD_LOGIN, userId)
+	SendConnMessage(conn, str)
 }

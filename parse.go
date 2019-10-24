@@ -7,6 +7,7 @@ import (
 
 func ParseJson(str string, m interface{}) {
 	if err := json.Unmarshal([]byte(str), m); err != nil {
+		fmt.Println(str)
 		fmt.Println(err)
 	}
 }

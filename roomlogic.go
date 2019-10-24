@@ -1,13 +1,14 @@
 package goIm
 
 import (
+	"fmt"
 	"net"
 	"sync"
 	"time"
 )
 
-type roomer interface {
-	Join(conn net.Conn, obj JoinRoomApi) error
+type Roomer interface {
+	Join(conn net.Conn, obj *JoinRoomApi) error
 }
 
 type localRoom struct {
@@ -23,8 +24,7 @@ type room struct {
 	mu        sync.Mutex
 }
 
-func (c *room) Join(conn net.Conn, obj JoinRoomApi) error {
-
+func (c *room) Join(conn net.Conn, obj *JoinRoomApi) error {
 	if data, ok := c.localRoom[obj.RoomName]; ok {
 		data.mu.Lock()
 		defer data.mu.Unlock()
@@ -42,6 +42,7 @@ func (c *room) Join(conn net.Conn, obj JoinRoomApi) error {
 		users = append(users, obj.UserIds...)
 	}
 	c.localRoom[obj.RoomName].users = append(c.localRoom[obj.RoomName].users, users...)
+	fmt.Println(c.localRoom[obj.RoomName].users)
 	return nil
 
 }
@@ -50,6 +51,8 @@ func newRoomMap() *localRoom {
 	return &localRoom{}
 }
 
-func NewRoomLogic() roomer {
-	return &room{}
+func NewRoomLogic() Roomer {
+	return &room{
+		localRoom: make(map[string]*localRoom),
+	}
 }
