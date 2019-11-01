@@ -26,6 +26,7 @@
         <method importPath="net" receiver="Conn" name="Close" />
         <method importPath="goIm" receiver="Singler" name="SendMessage" />
         <method importPath="goIm" receiver="Roomer" name="Join" />
+        <method importPath="goIm" receiver="Singler" name="SendReceipt" />
       </methods>
     </inspection_tool>
   </profile>

@@ -5,6 +5,7 @@ import (
 	"github.com/goinggo/mapstructure"
 	"net"
 	"sync"
+	"time"
 )
 
 type LocalUser struct {
@@ -36,7 +37,12 @@ var (
 func ConnHandle(conn net.Conn, str string) {
 	m := new(ReadSApi)
 	// TODO  添加配置支持proto
-	ParseJson(str, m)
+	if err := ParseJson(str, m); err != nil {
+		//SendConnMessage(conn, strconv.Itoa(ERROR_PARSE_JSON))
+		fmt.Println(int(time.Now().Unix()))
+		//SendConnMessage(conn, string(time.Now().Unix()))
+		return
+	}
 	// 判读
 	if m.Pmd == PMD_LOGIN && m.Token != "" {
 		localUser.mu.Lock()
@@ -86,6 +92,10 @@ func forRoute(conn net.Conn, pmd int, data interface{}) {
 		mapDecode(data, m)
 		roomLogic.Join(conn, m)
 		break
+	case PMD_SINGLE_RECEIPT:
+		var m = new(SendReceiptApi)
+		mapDecode(data, m)
+		singleLogic.SendReceipt(conn, m)
 	default:
 		break
 	}

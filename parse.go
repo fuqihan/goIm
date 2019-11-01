@@ -2,12 +2,11 @@ package goIm
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
-func ParseJson(str string, m interface{}) {
+func ParseJson(str string, m interface{}) error {
 	if err := json.Unmarshal([]byte(str), m); err != nil {
-		fmt.Println(str)
-		fmt.Println(err)
+		return err
 	}
+	return nil
 }

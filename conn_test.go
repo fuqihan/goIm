@@ -3,6 +3,7 @@ package goIm
 import (
 	"fmt"
 	"net"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -28,10 +29,18 @@ func TestBootstrapRepeat(t *testing.T) {
 */
 func TestRead(t *testing.T) {
 	if conn, err := InitTestDial(iPort); err == nil {
-		str := "asasaasasasdfksldfjlkfjslfkjslfkjslfjksfjsdlf"
-		n, _ := conn.Write([]byte(str))
-		fmt.Println(n)
-		conn.Close()
+		strs := []string{"a", "b"}
+		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+			a, _ := strconv.Atoi(s)
+			if a != ERROR_PARSE_JSON {
+				t.Errorf("返回错误 %s, 应该返回 %d", s, ERROR_PARSE_JSON)
+			}
+			return
+		})
+		for _, str := range strs {
+			SendConnMessage(conn, str)
+		}
+		time.Sleep(1e9)
 	}
 }
 

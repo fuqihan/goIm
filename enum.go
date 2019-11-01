@@ -10,5 +10,10 @@ const (
 
 	PMD_SINGLE_SEND_MESSAGE int = 2001
 
+	PMD_SINGLE_RECEIPT int = 2002
+
 	PMD_ROOM_JOIN int = 3001
+
+	// Error 枚举
+	ERROR_PARSE_JSON int = 1001 // json解析错误
 )

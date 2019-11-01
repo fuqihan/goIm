@@ -17,7 +17,7 @@ var (
 /**
 接受信息处理
 */
-func read(c net.Conn) {
+func ReadConnMessage(c net.Conn, fn func(conn net.Conn, s string)) {
 	// TODO 添加字节长度配置
 	data := make([]byte, 1000)
 	result := bytes.NewBuffer(nil)
@@ -35,8 +35,8 @@ func read(c net.Conn) {
 		scanner := bufio.NewScanner(result)
 		scanner.Split(packetSplitFunc)
 		for scanner.Scan() {
-			fmt.Println(string(scanner.Bytes()))
-			go ConnHandle(c, string(scanner.Bytes()))
+			//fmt.Println(string(scanner.Bytes()))
+			go fn(c, string(scanner.Bytes()))
 		}
 	}
 }
@@ -100,6 +100,6 @@ func Bootstrap(port string) error {
 			fmt.Println(err)
 			continue
 		}
-		go read(c)
+		go ReadConnMessage(c, ConnHandle)
 	}
 }
