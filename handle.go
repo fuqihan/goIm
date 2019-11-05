@@ -38,7 +38,7 @@ func ConnHandle(conn net.Conn, str string) {
 	m := new(ReadSApi)
 	// TODO  添加配置支持proto
 	if err := utils.ParseJson(str, m); err != nil {
-		SendConnMessageInt(conn, ERROR_PARSE_JSON)
+		SendConnMessageJson(conn, 0, 0, "json格式错误")
 		return
 	}
 	// 判读
@@ -60,12 +60,9 @@ func ConnHandle(conn net.Conn, str string) {
 		fmt.Println(localUser.user)
 		return
 	}
-	forRoute(conn, m.Pmd, m.Data)
-	//if _, ok := connMap.conn[conn]; ok {
-	//	fmt.Println(connMap.conn[conn])
-	//
-	//	emitMethod(conn, m.Pmd, m.Data)
-	//}
+	if _, ok := localConn.conn[conn]; ok {
+		forRoute(conn, m.Pmd, m.Data)
+	}
 }
 
 func SendUserMessage(userId string, str string) {
@@ -90,10 +87,16 @@ func forRoute(conn net.Conn, pmd int, data interface{}) {
 		mapDecode(data, m)
 		roomLogic.Join(conn, m)
 		break
+	case PMD_ROOM_QUIT:
+		var m = new(QuitRoomApi)
+		mapDecode(data, m)
+		roomLogic.Quit(conn, m)
+		break
 	case PMD_SINGLE_RECEIPT:
 		var m = new(SendReceiptApi)
 		mapDecode(data, m)
 		singleLogic.SendReceipt(conn, m)
+		break
 	default:
 		break
 	}

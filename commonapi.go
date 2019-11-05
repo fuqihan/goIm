@@ -21,6 +21,14 @@ type JoinRoomApi struct {
 }
 
 /*
+	退出房间
+*/
+type QuitRoomApi struct {
+	UserId   string `json:"user_id"`
+	RoomName string `json:"room_name"`
+}
+
+/*
 	回执请求
 */
 type SendReceiptApi struct {

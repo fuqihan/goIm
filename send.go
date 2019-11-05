@@ -27,8 +27,17 @@ func SendConnMessageJson(c net.Conn, pmd int, code int32, str string) error {
 	return nil
 }
 
+/*
+	信息参数为int，节省转换消耗
+*/
 func SendConnMessageInt(c net.Conn, i interface{}) {
-
+	var bf bytes.Buffer
+	err := binary.Write(&bf, binary.BigEndian, i)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	SendConnMessage(c, bf.Bytes())
 }
 
 /*

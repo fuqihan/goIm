@@ -9,11 +9,14 @@ import (
 )
 
 const (
-	join_type_create = 1 // 创建
+	joinTypeCreate = 1 // 创建
 )
 
 type Roomer interface {
-	Join(conn net.Conn, obj *JoinRoomApi)
+	Join(conn net.Conn, obj *JoinRoomApi) // 加入房间
+	Quit(conn net.Conn, obj *QuitRoomApi) // 退出房间
+	GetRoomInfo(conn net.Conn)            // 获取房间信息
+	GetUserRoomList(conn net.Conn)        // 获取某一个用户的房间列表
 }
 
 type localRoom struct {
@@ -35,7 +38,7 @@ func (c *room) Join(conn net.Conn, obj *JoinRoomApi) {
 		defer data.mu.Unlock()
 
 	} else {
-		if obj.Type != join_type_create {
+		if obj.Type != joinTypeCreate {
 			SendConnMessageJson(conn, PMD_ROOM_JOIN, SEND_CODE_ERROR, "join 创建时type参数错误，或已存在该房间")
 			return
 		}
@@ -57,6 +60,17 @@ func (c *room) Join(conn net.Conn, obj *JoinRoomApi) {
 	}
 	fmt.Println(c.localRoom[obj.RoomName].role)
 
+}
+
+func (c *room) Quit(conn net.Conn, obj *QuitRoomApi) {
+	if data, ok := c.localRoom[obj.RoomName]; ok && obj.UserId != "" {
+		data.mu.Lock()
+		defer data.mu.Unlock()
+		data.users.Remove(obj.UserId)
+		SendConnMessageJson(conn, PMD_ROOM_QUIT, SEND_CODE_SUCCESS, "")
+		return
+	}
+	SendConnMessageJson(conn, PMD_ROOM_QUIT, SEND_CODE_ERROR, "不存在此房间")
 }
 
 func newRoomMap() *localRoom {

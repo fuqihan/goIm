@@ -14,13 +14,12 @@ const (
 
 	PMD_ROOM_JOIN int = 3001
 
+	PMD_ROOM_QUIT int = 3002
+
 	// 请求返回码
 	SEND_CODE_SUCCESS int32 = 1
 
 	SEND_CODE_ERROR int32 = 2
-
-	// Error 枚举
-	ERROR_PARSE_JSON int = 1001 // json解析错误
 
 	// error 内容
 	ERROR_TEXT_PARAM string = "参数不正确或为空"
