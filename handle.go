@@ -3,9 +3,9 @@ package goIm
 import (
 	"fmt"
 	"github.com/goinggo/mapstructure"
+	"goIm/utils"
 	"net"
 	"sync"
-	"time"
 )
 
 type LocalUser struct {
@@ -37,10 +37,8 @@ var (
 func ConnHandle(conn net.Conn, str string) {
 	m := new(ReadSApi)
 	// TODO  添加配置支持proto
-	if err := ParseJson(str, m); err != nil {
-		//SendConnMessage(conn, strconv.Itoa(ERROR_PARSE_JSON))
-		fmt.Println(int(time.Now().Unix()))
-		//SendConnMessage(conn, string(time.Now().Unix()))
+	if err := utils.ParseJson(str, m); err != nil {
+		SendConnMessageInt(conn, ERROR_PARSE_JSON)
 		return
 	}
 	// 判读
@@ -52,13 +50,13 @@ func ConnHandle(conn net.Conn, str string) {
 		// TODO token解析 支持传入fn
 		userId := m.Token
 		if oriConn, ok := localUser.user[userId]; ok {
-			SendConnMessage(oriConn, "login change")
+			SendConnMessageJson(oriConn, PMD_LOGIN, SEND_CODE_SUCCESS, "login change")
 			delete(localConn.conn, oriConn)
 			//oriConn.Close()
 		}
 		localUser.user[userId] = conn
 		localConn.conn[conn] = userId
-		SendConnMessage(conn, "login success")
+		SendConnMessageJson(conn, PMD_LOGIN, SEND_CODE_SUCCESS, "login success")
 		fmt.Println(localUser.user)
 		return
 	}
@@ -72,7 +70,7 @@ func ConnHandle(conn net.Conn, str string) {
 
 func SendUserMessage(userId string, str string) {
 	if conn, ok := localUser.user[userId]; ok {
-		SendConnMessage(conn, str)
+		SendConnMessageStr(conn, str)
 	}
 }
 

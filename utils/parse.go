@@ -1,4 +1,4 @@
-package goIm
+package utils
 
 import (
 	"encoding/json"

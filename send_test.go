@@ -38,7 +38,7 @@ func TestRead(t *testing.T) {
 			return
 		})
 		for _, str := range strs {
-			SendConnMessage(conn, str)
+			SendConnMessage(conn, []byte(str))
 		}
 		time.Sleep(1e9)
 	}
@@ -65,5 +65,5 @@ func InitTestDial(port string) (net.Conn, error) {
 
 func IniTestLogin(conn net.Conn, userId string) {
 	str := fmt.Sprintf(`{"pmd": %d, "token":"%s"}`, PMD_LOGIN, userId)
-	SendConnMessage(conn, str)
+	SendConnMessage(conn, []byte(str))
 }

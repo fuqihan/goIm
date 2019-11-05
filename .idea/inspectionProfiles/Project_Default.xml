@@ -10,6 +10,9 @@
         <function importPath="fmt" name="Print" />
         <function importPath="goIm" name="Bootstrap" />
         <function importPath="goIm" name="SendConnMessage" />
+        <function importPath="encoding/binary" name="Read" />
+        <function importPath="goIm" name="SendConnMessageError" />
+        <function importPath="goIm" name="SendConnMessageJson" />
       </functions>
       <methods>
         <method importPath="hash" receiver="Hash" name="Write" />
