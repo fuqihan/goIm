@@ -2,6 +2,7 @@ package goIm
 
 import (
 	"fmt"
+	"goIm/dbredis"
 	"log"
 	"net"
 	"strings"
@@ -21,6 +22,7 @@ func Bootstrap(port string) error {
 		return err
 	}
 	log.Println(port, "tcp启动成功")
+	dbRedisBootstrap()
 	for {
 		c, err := listen.Accept()
 		if err != nil {
@@ -29,4 +31,8 @@ func Bootstrap(port string) error {
 		}
 		go ReadConnMessage(c, ConnHandle)
 	}
+}
+
+func dbRedisBootstrap() {
+	DbRedisConn, _ = dbredis.CreateConn()
 }

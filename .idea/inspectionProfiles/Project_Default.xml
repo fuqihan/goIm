@@ -13,6 +13,7 @@
         <function importPath="encoding/binary" name="Read" />
         <function importPath="goIm" name="SendConnMessageError" />
         <function importPath="goIm" name="SendConnMessageJson" />
+        <function importPath="goIm" name="connBootstrap" />
       </functions>
       <methods>
         <method importPath="hash" receiver="Hash" name="Write" />

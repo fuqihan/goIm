@@ -10,6 +10,12 @@ type SendMessageApi struct {
 	Now  uint   `json:"now"`  // 时间戳
 }
 
+type CreateRoomApi struct {
+	UserId    string   `json:"user_id"`
+	JoinUsers []string `json:"join_users"`
+	RoomName  string   `json:"room_name"`
+}
+
 /*
 	加入房间
 */
@@ -17,7 +23,6 @@ type JoinRoomApi struct {
 	UserId   string   `json:"user_id"`   // 要加入房间的id
 	UserIds  []string `json:"user_ids"`  // 支持十足模式
 	RoomName string   `json:"room_name"` // 房间名
-	Type     int      `json:"type"`      // 1 创建  2 加入
 }
 
 /*

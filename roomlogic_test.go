@@ -16,14 +16,14 @@ func TestRoom_Join(t *testing.T) {
 			obj := new(SendApi)
 			utils.ParseJson(s, obj)
 			if obj.Code != SEND_CODE_SUCCESS {
-				t.Errorf("返回错误 %s, 应该返回 %d", s, ERROR_PARSE_JSON)
+				t.Errorf("返回错误 %s, 应该返回", s)
 			}
 			return
 		})
 		IniTestLogin(conn, userId)
-		joinStrs := fmt.Sprintf(`{"pmd": %d, "data": {"userId": "%s", "roomName": "%s", "type": 1}}`,
-			PMD_ROOM_JOIN, userId, roomName)
-		SendConnMessageStr(conn, joinStrs)
+		joinStr := fmt.Sprintf(`{"pmd": %d, "data": {"userId": "%s", "roomName": "%s"}}`,
+			PMD_ROOM_CREATE, userId, roomName)
+		SendConnMessageStr(conn, joinStr)
 		time.Sleep(1e9)
 	}
 }

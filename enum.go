@@ -12,21 +12,38 @@ const (
 
 	PMD_SINGLE_RECEIPT int = 2002
 
-	PMD_ROOM_JOIN int = 3001
+	PMD_ROOM_CREATE int = 3001
 
-	PMD_ROOM_QUIT int = 3002
+	PMD_ROOM_JOIN int = 3002
 
+	PMD_ROOM_QUIT int = 3003
+)
+
+const (
 	// 请求返回码
 	SEND_CODE_SUCCESS int32 = 1
 
 	SEND_CODE_ERROR int32 = 2
+)
 
+const (
+	//redis key
+	REDIS_ROOM_LIST string = "room:list" // set
+
+	REDIS_ROOM_DETAIL string = "room:detail:%s" // hash
+)
+
+const (
 	// error 内容
 	ERROR_TEXT_PARAM string = "参数不正确或为空"
+)
 
+const (
 	// 房间类型
 	ROOM_MODE_DEFAULT uint32 = 1 // 普通类型
+)
 
+const (
 	// 房间权限
 	ROOM_ROLE_SADMIN uint32 = 1001 // 系统超管
 	ROOM_ROLE_ADMIN  uint32 = 1    // 群超管

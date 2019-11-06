@@ -82,6 +82,11 @@ func forRoute(conn net.Conn, pmd int, data interface{}) {
 		mapDecode(data, m)
 		singleLogic.SendMessage(conn, localConn.conn[conn], m)
 		break
+	case PMD_ROOM_CREATE:
+		var m = new(CreateRoomApi)
+		mapDecode(data, m)
+		roomLogic.Create(conn, m)
+		break
 	case PMD_ROOM_JOIN:
 		var m = new(JoinRoomApi)
 		mapDecode(data, m)
