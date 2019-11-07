@@ -30,7 +30,15 @@ const (
 	//redis key
 	REDIS_ROOM_LIST string = "room:list" // set
 
-	REDIS_ROOM_DETAIL string = "room:detail:%s" // hash
+	REDIS_ROOM_DETAIL string = "room:detail:%d" // hash
+
+	REDIS_ROOM_ROLE string = "room:role:%d:%d"
+
+	REDIS_ROOM_USERS string = "room:users:%d"
+
+	REDIS_ROOM_USER_INFO string = "room:user:%d:%s"
+
+	REDIS_USER_ROOMS string = "user:rooms:%s"
 )
 
 const (

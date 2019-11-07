@@ -11,9 +11,8 @@ type SendMessageApi struct {
 }
 
 type CreateRoomApi struct {
-	UserId    string   `json:"user_id"`
-	JoinUsers []string `json:"join_users"`
-	RoomName  string   `json:"room_name"`
+	UserId   string `json:"user_id"`
+	RoomName string `json:"room_name"`
 }
 
 /*

@@ -1,8 +1,12 @@
 /* 全局对象 */
 package goIm
 
-import "goIm/dbredis"
+import (
+	"goIm/dbredis"
+	"goIm/utils"
+)
 
 var (
-	DbRedisConn dbredis.RedisHandler // redis 数据库操作器
+	DBRedisConn dbredis.RedisHandler // redis 数据库操作器
+	RoomUUIDGen *utils.UUIDGenerator
 )

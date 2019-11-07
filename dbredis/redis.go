@@ -7,7 +7,7 @@ import (
 )
 
 type RedisHandler interface {
-	DoSet(commandName string, key string, val string)
+	DoSet(commandName string, key string, val interface{})
 	DoSetArgs(commandName string, key string, args ...interface{})
 	DoExpire(key string, expireTime uint)
 	DoSismember(key string, val string) uint64
@@ -57,9 +57,9 @@ func (rc *redisConn) DoExpire(key string, expireTime uint) {
 /*
 	用于一些常规的插入操作
 */
-func (rc *redisConn) DoSet(commandName string, key string, val string) {
+func (rc *redisConn) DoSet(commandName string, key string, val interface{}) {
 	if _, err := rc.conn.Do(commandName, getKeyName(key), val); err != nil {
-		fmt.Println(err)
+		fmt.Println("DoSet")
 	}
 }
 
@@ -69,7 +69,7 @@ func (rc *redisConn) DoSet(commandName string, key string, val string) {
 func (rc *redisConn) DoSetArgs(commandName string, key string, args ...interface{}) {
 	arr := append([]interface{}{getKeyName(key)}, args...)
 	if _, err := rc.conn.Do(commandName, arr...); err != nil {
-		fmt.Println(err)
+		fmt.Println("DoSetArgs")
 	}
 }
 
@@ -87,7 +87,7 @@ func (rc *redisConn) DoSismember(key string, val string) uint64 {
 	if result, err := redis.Uint64(rc.conn.Do("SISMEMBER", getKeyName(key), val)); err == nil {
 		return result
 	} else {
-		fmt.Println(err)
+		fmt.Println("DoSismember")
 		return 0
 	}
 }

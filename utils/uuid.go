@@ -1,21 +1,17 @@
 package utils
 
-import "fmt"
-
 const (
 	MAXUINT32              = 4294967295
 	DEFAULT_UUID_CNT_CACHE = 512
 )
 
 type UUIDGenerator struct {
-	Prefix       string
 	idGen        uint32
 	internalChan chan uint32
 }
 
-func NewUUIDGenerator(prefix string) *UUIDGenerator {
+func NewUUIDGenerator() *UUIDGenerator {
 	gen := &UUIDGenerator{
-		Prefix:       prefix,
 		idGen:        0,
 		internalChan: make(chan uint32, DEFAULT_UUID_CNT_CACHE),
 	}
@@ -35,12 +31,6 @@ func (this *UUIDGenerator) startGen() {
 			this.internalChan <- this.idGen
 		}
 	}()
-}
-
-//获取带前缀的字符串形式的UUID
-func (this *UUIDGenerator) Get() string {
-	idgen := <-this.internalChan
-	return fmt.Sprintf("%s%d", this.Prefix, idgen)
 }
 
 //获取uint32形式的UUID

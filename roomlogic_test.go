@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestRoom_Join(t *testing.T) {
+func TestRoom_Create(t *testing.T) {
 	if conn, err := InitTestDial("3000"); err == nil {
 		userId := "aaaa"
 		roomName := "asasass"

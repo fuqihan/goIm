@@ -3,6 +3,7 @@ package goIm
 import (
 	"fmt"
 	"goIm/dbredis"
+	"goIm/utils"
 	"log"
 	"net"
 	"strings"
@@ -23,6 +24,7 @@ func Bootstrap(port string) error {
 	}
 	log.Println(port, "tcp启动成功")
 	dbRedisBootstrap()
+	UUIDBootstrap()
 	for {
 		c, err := listen.Accept()
 		if err != nil {
@@ -34,5 +36,9 @@ func Bootstrap(port string) error {
 }
 
 func dbRedisBootstrap() {
-	DbRedisConn, _ = dbredis.CreateConn()
+	DBRedisConn, _ = dbredis.CreateConn()
+}
+
+func UUIDBootstrap() {
+	RoomUUIDGen = utils.NewUUIDGenerator()
 }

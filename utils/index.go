@@ -18,6 +18,10 @@ func (ma *MaptoArr) Add(args ...interface{}) {
 	ma.Arr = append(ma.Arr, args...)
 }
 
+func (ma *MaptoArr) Clone() {
+	ma.Arr = []interface{}{}
+}
+
 func GetTimeNow() int64 {
 	return time.Now().In(_CST_ZONE).Unix()
 

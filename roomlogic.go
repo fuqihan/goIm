@@ -36,12 +36,33 @@ type room struct {
 func (r *room) Create(conn net.Conn, obj *CreateRoomApi) {
 	r.createMu.Lock()
 	defer r.createMu.Unlock()
-	if DbRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomName) == 0 {
-		DbRedisConn.DoSet("LPUSH", REDIS_ROOM_LIST, obj.RoomName)
+	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomName) == 0 {
+		roomId := RoomUUIDGen.GetUint32()
+		now := utils.GetTimeNow()
+		// 房间加入set
+		DBRedisConn.DoSet("SADD", REDIS_ROOM_LIST, roomId)
+		//初始化房间详情
 		ma := &utils.MaptoArr{[]interface{}{}}
-		ma.Add("createDate", utils.GetTimeNow())
-		DbRedisConn.DoSetArgs("HSET",
-			fmt.Sprintf(REDIS_ROOM_DETAIL, obj.RoomName), ma.Arr...)
+		ma.Add("createDate", now)
+		ma.Add("mode", ROOM_MODE_DEFAULT)
+		ma.Add("createUser", obj.UserId)
+		ma.Add("name", obj.RoomName)
+		DBRedisConn.DoSetArgs("HMSET",
+			fmt.Sprintf(REDIS_ROOM_DETAIL, roomId), ma.Arr...)
+		// 初始化权限
+		DBRedisConn.DoSet("SADD",
+			fmt.Sprintf(REDIS_ROOM_ROLE, roomId, ROOM_ROLE_ADMIN), obj.UserId)
+		// 初始化房间的用户数据
+		DBRedisConn.DoSet("SADD",
+			fmt.Sprintf(REDIS_ROOM_USERS, roomId), obj.UserId)
+		ma.Clone()
+		ma.Add("inviteUser", "")
+		ma.Add("currentViewTime", now) // 当前纤细看到的时间
+		DBRedisConn.DoSetArgs("HMSET",
+			fmt.Sprintf(REDIS_ROOM_USER_INFO, roomId, obj.UserId), ma.Arr...)
+		DBRedisConn.DoSet("SADD",
+			fmt.Sprintf(REDIS_USER_ROOMS, obj.UserId), roomId)
+		SendConnMessageJson(conn, PMD_ROOM_CREATE, SEND_CODE_SUCCESS, "")
 	} else {
 		SendConnMessageJson(conn, PMD_ROOM_CREATE, SEND_CODE_ERROR, "room create 或已存在该房间")
 	}
