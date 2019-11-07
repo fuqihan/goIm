@@ -92,6 +92,11 @@ func (rc *redisConn) DoSismember(key string, val string) uint64 {
 	}
 }
 
+func (rc *redisConn) NewScript() {
+	redis.NewScript()
+	rc.conn.NewS
+}
+
 func getKeyName(key string) string {
 	arr := []string{_prefix, ":", key}
 	return strings.Join(arr, "")

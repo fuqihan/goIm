@@ -19,9 +19,8 @@ type CreateRoomApi struct {
 	加入房间
 */
 type JoinRoomApi struct {
-	UserId   string   `json:"user_id"`   // 要加入房间的id
-	UserIds  []string `json:"user_ids"`  // 支持十足模式
-	RoomName string   `json:"room_name"` // 房间名
+	UserIds []string `json:"user_ids"` // 支持十足模式
+	RoomId  string   `json:"room_id"`  // 房间id
 }
 
 /*

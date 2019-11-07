@@ -3,7 +3,6 @@ package goIm
 import (
 	"fmt"
 	"goIm/utils"
-	"gopkg.in/fatih/set.v0"
 	"net"
 	"sync"
 )
@@ -20,27 +19,20 @@ type Roomer interface {
 	//GetUserRoomList(conn net.Conn)        // 获取某一个用户的房间列表
 }
 
-type localRoom struct {
-	createDate int64
-	mode       uint32
-	users      set.Interface
-	role       map[uint32]set.Interface
-	mu         sync.Mutex
-}
-
 type room struct {
-	localRoom map[string]*localRoom
-	createMu  sync.Mutex
+	createMu sync.Mutex
 }
 
 func (r *room) Create(conn net.Conn, obj *CreateRoomApi) {
 	r.createMu.Lock()
 	defer r.createMu.Unlock()
-	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomName) == 0 {
+	// 入库后改成查数据库
+	if DBRedisConn.DoSismember(REDIS_ROOM_NAME_LIST, obj.RoomName) == 0 {
 		roomId := RoomUUIDGen.GetUint32()
 		now := utils.GetTimeNow()
-		// 房间加入set
+		// 房间加入set、
 		DBRedisConn.DoSet("SADD", REDIS_ROOM_LIST, roomId)
+		DBRedisConn.DoSet("SADD", REDIS_ROOM_NAME_LIST, obj.RoomName)
 		//初始化房间详情
 		ma := &utils.MaptoArr{[]interface{}{}}
 		ma.Add("createDate", now)
@@ -64,60 +56,23 @@ func (r *room) Create(conn net.Conn, obj *CreateRoomApi) {
 			fmt.Sprintf(REDIS_USER_ROOMS, obj.UserId), roomId)
 		SendConnMessageJson(conn, PMD_ROOM_CREATE, SEND_CODE_SUCCESS, "")
 	} else {
-		SendConnMessageJson(conn, PMD_ROOM_CREATE, SEND_CODE_ERROR, "room create 或已存在该房间")
+		SendConnMessageJson(conn, PMD_ROOM_CREATE, SEND_CODE_ERROR, "已存在该房间")
 	}
 }
 
 func (r *room) Join(conn net.Conn, obj *JoinRoomApi) {
-	//if DbRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomName) == 0 {
-	//	r.mu.Lock()
-	//	defer r.mu.Unlock()
-	//	if obj.Type != _joinTypeCreate {
-	//		SendConnMessageJson(conn, PMD_ROOM_JOIN, SEND_CODE_ERROR, "join 创建时type参数错误，或已存在该房间")
-	//		return
-	//	}
-	//	if obj.UserId == "" {
-	//		SendConnMessageJson(conn, PMD_ROOM_JOIN, SEND_CODE_ERROR, "join 创建时UserId不能为空")
-	//		return
-	//	}
-	//	c.localRoom[obj.RoomName] = newRoomMap()
-	//	// 创建者为群超管
-	//	c.localRoom[obj.RoomName].role[ROOM_ROLE_ADMIN] = set.New(set.ThreadSafe)
-	//	c.localRoom[obj.RoomName].role[ROOM_ROLE_ADMIN].Add(obj.UserId)
-	//}
-	//if obj.UserId != "" {
-	//	c.localRoom[obj.RoomName].users.Add(obj.UserId)
-	//} else {
-	//	for _, userId := range obj.UserIds {
-	//		c.localRoom[obj.RoomName].users.Add(userId)
-	//	}
-	//}
-	//fmt.Println(c.localRoom[obj.RoomName].role)
+	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomId) != 0 && len(obj.UserIds) != 0 {
 
+	} else {
+		SendConnMessageJson(conn, PMD_ROOM_JOIN, SEND_CODE_ERROR, "不存在此房间或用户为空")
+	}
 }
 
 func (c *room) Quit(conn net.Conn, obj *QuitRoomApi) {
-	if data, ok := c.localRoom[obj.RoomName]; ok && obj.UserId != "" {
-		data.mu.Lock()
-		defer data.mu.Unlock()
-		data.users.Remove(obj.UserId)
-		SendConnMessageJson(conn, PMD_ROOM_QUIT, SEND_CODE_SUCCESS, "")
-		return
-	}
+
 	SendConnMessageJson(conn, PMD_ROOM_QUIT, SEND_CODE_ERROR, "不存在此房间")
 }
 
-func newRoomMap() *localRoom {
-	return &localRoom{
-		createDate: utils.GetTimeNow(),
-		users:      set.New(set.ThreadSafe),
-		mode:       ROOM_MODE_DEFAULT,
-		role:       make(map[uint32]set.Interface),
-	}
-}
-
 func NewRoomLogic() Roomer {
-	return &room{
-		localRoom: make(map[string]*localRoom),
-	}
+	return &room{}
 }
