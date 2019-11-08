@@ -20,3 +20,7 @@ func TestCreateConn(t *testing.T) {
 		t.Errorf("连接失败")
 	}
 }
+
+func TestRedisConn_DoGet(t *testing.T) {
+	readFile("./lua/room_join.lua")
+}

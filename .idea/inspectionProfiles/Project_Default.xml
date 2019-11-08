@@ -31,6 +31,8 @@
         <method importPath="goIm" receiver="Singler" name="SendMessage" />
         <method importPath="goIm" receiver="Roomer" name="Join" />
         <method importPath="goIm" receiver="Singler" name="SendReceipt" />
+        <method importPath="github.com/gomodule/redigo/redis" receiver="*Script" name="Do" />
+        <method importPath="github.com/ugorji/go/codec" receiver="*Encoder" name="Encode" />
       </methods>
     </inspection_tool>
   </profile>

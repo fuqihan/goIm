@@ -1,8 +1,14 @@
 package dbredis
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/gomodule/redigo/redis"
+	"github.com/ugorji/go/codec"
+	"io/ioutil"
+	"os"
+	"path"
+	"runtime"
 	"strings"
 )
 
@@ -12,6 +18,7 @@ type RedisHandler interface {
 	DoExpire(key string, expireTime uint)
 	DoSismember(key string, val string) uint64
 	DoGet(key string) string
+	NewScriptSet(fileName string, keyCount int, keyNames []string, args ...interface{})
 	CloneConn()
 }
 
@@ -26,7 +33,9 @@ type redisConn struct {
 }
 
 var (
-	_prefix = "im"
+	_prefix     = "im"
+	_roomLuaMap = make(map[string]string)
+	_luaPrefix  = getPathDir("/lua")
 )
 
 /*
@@ -34,6 +43,7 @@ var (
 */
 func CreateConn() (RedisHandler, error) {
 	if conn, err := redis.Dial("tcp", "112.74.61.35:6379"); err == nil {
+		conn.Do("AUTH", "112233")
 		return &redisConn{conn: conn}, nil
 	} else {
 		fmt.Println(err)
@@ -48,6 +58,9 @@ func (rc *redisConn) CloneConn() {
 	_ = rc.conn.Close()
 }
 
+/*
+	设置过期时间
+*/
 func (rc *redisConn) DoExpire(key string, expireTime uint) {
 	if _, err := rc.conn.Do("EXPIRE", getKeyName(key), expireTime); err != nil {
 		fmt.Println(err)
@@ -83,6 +96,9 @@ func (rc *redisConn) DoGet(key string) string {
 	}
 }
 
+/*
+	判断是否存在
+*/
 func (rc *redisConn) DoSismember(key string, val string) uint64 {
 	if result, err := redis.Uint64(rc.conn.Do("SISMEMBER", getKeyName(key), val)); err == nil {
 		return result
@@ -92,11 +108,77 @@ func (rc *redisConn) DoSismember(key string, val string) uint64 {
 	}
 }
 
-func (rc *redisConn) NewScript() {
-	redis.NewScript()
-	rc.conn.NewS
+/*
+	运行lua脚本
+*/
+func (rc *redisConn) NewScriptSet(fileName string, keyCount int, keyNames []string, args ...interface{}) {
+	if _, ok := _roomLuaMap[fileName]; !ok {
+		str, _ := readFile(strings.Join([]string{_luaPrefix, "/", fileName, ".lua"}, ""))
+		_roomLuaMap[fileName] = str
+	}
+	text := _roomLuaMap[fileName]
+	var script = redis.NewScript(keyCount, text)
+	arr := []interface{}{}
+	for _, val := range keyNames {
+		arr = append(arr, getKeyName(val))
+	}
+	for _, val := range args {
+		if _, ok := val.([]string); ok {
+			arr = append(arr, msgpack(val))
+		} else {
+			arr = append(arr, val)
+		}
+	}
+	_, err := script.Do(rc.conn, arr...)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
+func (rc *redisConn) NewScriptGet(keyCount int, src string, keys ...interface{}) {
+	var script = redis.NewScript(keyCount, src)
+	reply, _ := script.Do(rc.conn, keys...)
+
+	array := reply.([]interface{})
+	for i, item := range array {
+		if item != nil {
+			// 假设 key1，key2 均返回 bulk string
+			fmt.Println(i, string(item.([]byte)))
+		}
+	}
+}
+
+/*
+	读取文件
+*/
+func readFile(file string) (string, error) {
+	f, _ := os.Open(file)
+	bt, _ := ioutil.ReadAll(f)
+	return string(bt), nil
+}
+
+/*
+	获取当前目录绝对地址
+*/
+func getPathDir(directory string) string {
+	_, filename, _, _ := runtime.Caller(1)
+	return path.Join(path.Dir(filename), directory)
+}
+
+/*
+	Msgpack加码
+*/
+func msgpack(data interface{}) *bytes.Buffer {
+	mh := &codec.MsgpackHandle{}
+	buf := &bytes.Buffer{}
+	enc := codec.NewEncoder(buf, mh)
+	enc.Encode(data)
+	return buf
+}
+
+/*
+	给redis key加前缀
+*/
 func getKeyName(key string) string {
 	arr := []string{_prefix, ":", key}
 	return strings.Join(arr, "")

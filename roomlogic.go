@@ -48,7 +48,6 @@ func (r *room) Create(conn net.Conn, obj *CreateRoomApi) {
 		DBRedisConn.DoSet("SADD",
 			fmt.Sprintf(REDIS_ROOM_USERS, roomId), obj.UserId)
 		ma.Clone()
-		ma.Add("inviteUser", "")
 		ma.Add("currentViewTime", now) // 当前纤细看到的时间
 		DBRedisConn.DoSetArgs("HMSET",
 			fmt.Sprintf(REDIS_ROOM_USER_INFO, roomId, obj.UserId), ma.Arr...)
@@ -62,13 +61,20 @@ func (r *room) Create(conn net.Conn, obj *CreateRoomApi) {
 
 func (r *room) Join(conn net.Conn, obj *JoinRoomApi) {
 	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomId) != 0 && len(obj.UserIds) != 0 {
+		now := utils.GetTimeNow()
 
+		keyNames := []string{REDIS_ROOM_USERS, REDIS_ROOM_USER_INFO, REDIS_USER_ROOMS}
+		count := len(keyNames)
+		//userIdJson, _ := json.Marshal(obj.UserIds)
+		DBRedisConn.NewScriptSet("room_join",
+			count, keyNames, obj.RoomId, obj.UserIds, now)
+		SendConnMessageJson(conn, PMD_ROOM_JOIN, SEND_CODE_SUCCESS, "")
 	} else {
 		SendConnMessageJson(conn, PMD_ROOM_JOIN, SEND_CODE_ERROR, "不存在此房间或用户为空")
 	}
 }
 
-func (c *room) Quit(conn net.Conn, obj *QuitRoomApi) {
+func (r *room) Quit(conn net.Conn, obj *QuitRoomApi) {
 
 	SendConnMessageJson(conn, PMD_ROOM_QUIT, SEND_CODE_ERROR, "不存在此房间")
 }
