@@ -43,6 +43,12 @@ const (
 	REDIS_ROOM_USER_INFO string = "room:user:%d:%s"
 
 	REDIS_USER_ROOMS string = "user:rooms:%s"
+
+	REDIS_USER_SWAP_LIST string = "user:swap:list:%s" // 每个人交流的列表
+
+	REDIS_USER_SWAP_DETAIL string = "user:swap:%S:%S"
+
+	REDIS_USER_SINGLE_SEND string = "user:single:send:%s:%s" // 两个人之间的交流记录
 )
 
 const (
@@ -59,4 +65,11 @@ const (
 	// 房间权限
 	ROOM_ROLE_SADMIN uint32 = 1001 // 系统超管
 	ROOM_ROLE_ADMIN  uint32 = 1    // 群超管
+)
+
+const (
+	// 用户间关系
+	USER_STATUS_STRANGE uint32 = 1 // 陌生人
+	USER_STATUS_FRIEND  uint32 = 2 // 好友
+	USER_STATUS_BLOCK   uint32 = 3 // 拉黑
 )

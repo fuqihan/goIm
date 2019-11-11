@@ -41,5 +41,6 @@ type GetRoomInfoApi struct {
 type SendReceiptApi struct {
 	Mode uint32 `json:"mode"` // 模式 2 为单聊 3 为群聊  4 为系统通知
 	Form string `json:"form"` // 回执的发送者
+	To   string `json:"to"`   // 回执的接收者
 	Now  uint   `json:"now"`  // 当前看到的时间
 }
