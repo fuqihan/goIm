@@ -17,6 +17,8 @@ const (
 	PMD_ROOM_JOIN int = 3002
 
 	PMD_ROOM_QUIT int = 3003
+
+	PMD_ROOM_INFO int = 3004
 )
 
 const (

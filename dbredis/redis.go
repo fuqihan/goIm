@@ -17,7 +17,7 @@ type RedisHandler interface {
 	DoSetArgs(commandName string, key string, args ...interface{})
 	DoExpire(key string, expireTime uint)
 	DoSismember(key string, val string) uint64
-	DoGet(key string) string
+	DoGet(commandName string, key string) string
 	NewScriptSet(fileName string, keyCount int, keyNames []string, args ...interface{})
 	CloneConn()
 }
@@ -86,8 +86,8 @@ func (rc *redisConn) DoSetArgs(commandName string, key string, args ...interface
 	}
 }
 
-func (rc *redisConn) DoGet(key string) string {
-	if result, err := redis.String(rc.conn.Do("GET", getKeyName(key))); err == nil {
+func (rc *redisConn) DoGet(commandName string, key string) string {
+	if result, err := redis.String(rc.conn.Do(commandName, getKeyName(key))); err == nil {
 		fmt.Println(result)
 		return result
 	} else {

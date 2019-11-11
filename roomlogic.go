@@ -13,9 +13,9 @@ const (
 
 type Roomer interface {
 	Create(conn net.Conn, obj *CreateRoomApi)
-	Join(conn net.Conn, obj *JoinRoomApi) // 加入房间
-	Quit(conn net.Conn, obj *QuitRoomApi) // 退出房间
-	//GetRoomInfo(conn net.Conn)            // 获取房间信息
+	Join(conn net.Conn, obj *JoinRoomApi)           // 加入房间
+	Quit(conn net.Conn, obj *QuitRoomApi)           // 退出房间
+	GetRoomInfo(conn net.Conn, obj *GetRoomInfoApi) // 获取房间信息
 	//GetUserRoomList(conn net.Conn)        // 获取某一个用户的房间列表
 }
 
@@ -65,7 +65,6 @@ func (r *room) Join(conn net.Conn, obj *JoinRoomApi) {
 
 		keyNames := []string{REDIS_ROOM_USERS, REDIS_ROOM_USER_INFO, REDIS_USER_ROOMS}
 		count := len(keyNames)
-		//userIdJson, _ := json.Marshal(obj.UserIds)
 		DBRedisConn.NewScriptSet("room_join",
 			count, keyNames, obj.RoomId, obj.UserIds, now)
 		SendConnMessageJson(conn, PMD_ROOM_JOIN, SEND_CODE_SUCCESS, "")
@@ -75,8 +74,25 @@ func (r *room) Join(conn net.Conn, obj *JoinRoomApi) {
 }
 
 func (r *room) Quit(conn net.Conn, obj *QuitRoomApi) {
+	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomId) != 0 && len(obj.UserIds) != 0 {
 
-	SendConnMessageJson(conn, PMD_ROOM_QUIT, SEND_CODE_ERROR, "不存在此房间")
+		keyNames := []string{REDIS_ROOM_USERS, REDIS_ROOM_USER_INFO, REDIS_USER_ROOMS}
+		count := len(keyNames)
+		DBRedisConn.NewScriptSet("room_quit",
+			count, keyNames, obj.RoomId, obj.UserIds)
+		SendConnMessageJson(conn, PMD_ROOM_QUIT, SEND_CODE_SUCCESS, "")
+	} else {
+		SendConnMessageJson(conn, PMD_ROOM_QUIT, SEND_CODE_ERROR, "不存在此房间")
+	}
+}
+
+func (r *room) GetRoomInfo(conn net.Conn, obj *GetRoomInfoApi) {
+	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomId) != 0 {
+		str := DBRedisConn.DoGet("HGET", fmt.Sprintf(REDIS_ROOM_DETAIL, obj.RoomId))
+		SendConnMessageJson(conn, PMD_ROOM_INFO, SEND_CODE_SUCCESS, str)
+	} else {
+		SendConnMessageJson(conn, PMD_ROOM_INFO, SEND_CODE_ERROR, "不存在此房间")
+	}
 }
 
 func NewRoomLogic() Roomer {
