@@ -9,8 +9,10 @@ import (
 )
 
 type Singler interface {
-	SendMessage(conn net.Conn, message *SendMessageApi)
-	SendReceipt(conn net.Conn, msg *SendReceiptApi)
+	SendMessage(conn net.Conn, message *SendMessageApi) // 单聊
+	SendReceipt(conn net.Conn, msg *SendReceiptApi)     // 消息回执
+	//ChangeBlack(conn net.Conn) 拉黑
+
 }
 
 type single struct {
