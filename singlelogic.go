@@ -3,14 +3,15 @@ package goIm
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/goinggo/mapstructure"
 	"goIm/utils"
 	"net"
 	"sort"
 )
 
 type Singler interface {
-	SendMessage(conn net.Conn, message *SendMessageApi) // 单聊
-	SendReceipt(conn net.Conn, msg *SendReceiptApi)     // 消息回执
+	SendMessage(conn net.Conn, data interface{}) // 单聊
+	SendReceipt(conn net.Conn, data interface{}) // 消息回执
 	//ChangeBlack(conn net.Conn) 拉黑
 
 }
@@ -22,7 +23,9 @@ func NewSingleLogic() Singler {
 	return &single{}
 }
 
-func (s *single) SendMessage(conn net.Conn, message *SendMessageApi) {
+func (s *single) SendMessage(conn net.Conn, data interface{}) {
+	message := new(SendMessageApi)
+	mapstructure.Decode(data, message)
 	if message.To != "" && message.Str != "" && message.Form != "" && message.Now != 0 {
 		if str, err := json.Marshal(message); err == nil {
 			ids := []string{message.To, message.Form}
@@ -51,7 +54,9 @@ func (s *single) SendMessage(conn net.Conn, message *SendMessageApi) {
 	SendConnMessageJson(conn, PMD_SINGLE_SEND_MESSAGE, SEND_CODE_ERROR, ERROR_TEXT_PARAM)
 }
 
-func (s *single) SendReceipt(conn net.Conn, msg *SendReceiptApi) {
+func (s *single) SendReceipt(conn net.Conn, data interface{}) {
+	msg := new(SendReceiptApi)
+	mapstructure.Decode(data, msg)
 	ids := []string{msg.To, msg.Form}
 	sort.Strings(ids)
 	var arrs []string

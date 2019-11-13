@@ -2,7 +2,6 @@ package goIm
 
 import (
 	"fmt"
-	"github.com/goinggo/mapstructure"
 	"goIm/utils"
 	"net"
 	"sync"
@@ -29,6 +28,7 @@ var (
 	localConn   = &LocalConn{conn: make(map[net.Conn]string)}
 	singleLogic = NewSingleLogic()
 	roomLogic   = NewRoomLogic()
+	pmdMap      = newPmdMap()
 )
 
 /**
@@ -75,40 +75,19 @@ func SendUserMessage(userId string, str string) {
 分发请求
 */
 func forRoute(conn net.Conn, pmd int, data interface{}) {
-
-	switch pmd {
-	case PMD_SINGLE_SEND_MESSAGE:
-		var m = new(SendMessageApi)
-		mapDecode(data, m)
-		singleLogic.SendMessage(conn, m)
-		break
-	case PMD_ROOM_CREATE:
-		var m = new(CreateRoomApi)
-		mapDecode(data, m)
-		roomLogic.Create(conn, m)
-		break
-	case PMD_ROOM_JOIN:
-		var m = new(JoinRoomApi)
-		mapDecode(data, m)
-		roomLogic.Join(conn, m)
-		break
-	case PMD_ROOM_QUIT:
-		var m = new(QuitRoomApi)
-		mapDecode(data, m)
-		roomLogic.Quit(conn, m)
-		break
-	case PMD_SINGLE_RECEIPT:
-		var m = new(SendReceiptApi)
-		mapDecode(data, m)
-		singleLogic.SendReceipt(conn, m)
-		break
-	default:
-		break
+	if fn, ok := pmdMap[pmd]; ok {
+		fn(conn, data)
 	}
 }
 
-func mapDecode(a interface{}, b interface{}) {
-	if err := mapstructure.Decode(a, b); err != nil {
-		fmt.Println(err)
-	}
+func newPmdMap() map[int]func(conn net.Conn, m interface{}) {
+	m := make(map[int]func(conn net.Conn, m interface{}))
+
+	m[PMD_SINGLE_SEND_MESSAGE] = singleLogic.SendMessage
+	m[PMD_SINGLE_RECEIPT] = singleLogic.SendReceipt
+	m[PMD_ROOM_CREATE] = roomLogic.Create
+	m[PMD_ROOM_QUIT] = roomLogic.Quit
+	m[PMD_ROOM_INFO] = roomLogic.GetRoomInfo
+
+	return m
 }

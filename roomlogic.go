@@ -2,6 +2,7 @@ package goIm
 
 import (
 	"fmt"
+	"github.com/goinggo/mapstructure"
 	"goIm/utils"
 	"net"
 	"sync"
@@ -12,10 +13,10 @@ const (
 )
 
 type Roomer interface {
-	Create(conn net.Conn, obj *CreateRoomApi)
-	Join(conn net.Conn, obj *JoinRoomApi)           // 加入房间
-	Quit(conn net.Conn, obj *QuitRoomApi)           // 退出房间
-	GetRoomInfo(conn net.Conn, obj *GetRoomInfoApi) // 获取房间信息
+	Create(conn net.Conn, data interface{})
+	Join(conn net.Conn, data interface{})        // 加入房间
+	Quit(conn net.Conn, data interface{})        // 退出房间
+	GetRoomInfo(conn net.Conn, data interface{}) // 获取房间信息
 	//GetUserRoomList(conn net.Conn)        // 获取某一个用户的房间列表
 }
 
@@ -23,7 +24,9 @@ type room struct {
 	createMu sync.Mutex
 }
 
-func (r *room) Create(conn net.Conn, obj *CreateRoomApi) {
+func (r *room) Create(conn net.Conn, data interface{}) {
+	obj := new(CreateRoomApi)
+	mapstructure.Decode(data, obj)
 	r.createMu.Lock()
 	defer r.createMu.Unlock()
 	// 入库后改成查数据库
@@ -59,7 +62,9 @@ func (r *room) Create(conn net.Conn, obj *CreateRoomApi) {
 	}
 }
 
-func (r *room) Join(conn net.Conn, obj *JoinRoomApi) {
+func (r *room) Join(conn net.Conn, data interface{}) {
+	obj := new(JoinRoomApi)
+	mapstructure.Decode(data, obj)
 	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomId) != 0 && len(obj.UserIds) != 0 {
 		now := utils.GetTimeNow()
 
@@ -73,7 +78,9 @@ func (r *room) Join(conn net.Conn, obj *JoinRoomApi) {
 	}
 }
 
-func (r *room) Quit(conn net.Conn, obj *QuitRoomApi) {
+func (r *room) Quit(conn net.Conn, data interface{}) {
+	obj := new(QuitRoomApi)
+	mapstructure.Decode(data, obj)
 	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomId) != 0 && len(obj.UserIds) != 0 {
 
 		keyNames := []string{REDIS_ROOM_USERS, REDIS_ROOM_USER_INFO, REDIS_USER_ROOMS}
@@ -86,7 +93,9 @@ func (r *room) Quit(conn net.Conn, obj *QuitRoomApi) {
 	}
 }
 
-func (r *room) GetRoomInfo(conn net.Conn, obj *GetRoomInfoApi) {
+func (r *room) GetRoomInfo(conn net.Conn, data interface{}) {
+	obj := new(GetRoomInfoApi)
+	mapstructure.Decode(data, obj)
 	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomId) != 0 {
 		str := DBRedisConn.DoGet("HGET", fmt.Sprintf(REDIS_ROOM_DETAIL, obj.RoomId))
 		SendConnMessageJson(conn, PMD_ROOM_INFO, SEND_CODE_SUCCESS, str)
