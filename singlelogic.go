@@ -12,7 +12,7 @@ import (
 type Singler interface {
 	SendMessage(conn net.Conn, data interface{}) // 单聊
 	SendReceipt(conn net.Conn, data interface{}) // 消息回执
-	//ChangeBlack(conn net.Conn) 拉黑
+	ChangeBlack(conn net.Conn, data interface{}) // 拉黑/取消拉黑
 
 }
 
@@ -67,4 +67,8 @@ func (s *single) SendReceipt(conn net.Conn, data interface{}) {
 	}
 	DBRedisConn.DoSetArgs("HSET",
 		fmt.Sprintf(REDIS_USER_SWAP_DETAIL, ids[0], ids[1]), arrs[0], arrs[1])
+}
+
+func (s *single) ChangeBlack(conn net.Conn, data interface{}) {
+
 }

@@ -56,7 +56,7 @@ func ConnHandle(conn net.Conn, str string) {
 		}
 		localUser.user[userId] = conn
 		localConn.conn[conn] = userId
-		SendConnMessageJson(conn, PMD_LOGIN, SEND_CODE_SUCCESS, "login success")
+		SendConnMessageJson(conn, PMD_LOGIN, SEND_CODE_ERROR, "login success")
 		fmt.Println(localUser.user)
 		return
 	}
@@ -82,12 +82,11 @@ func forRoute(conn net.Conn, pmd int, data interface{}) {
 
 func newPmdMap() map[int]func(conn net.Conn, m interface{}) {
 	m := make(map[int]func(conn net.Conn, m interface{}))
-
 	m[PMD_SINGLE_SEND_MESSAGE] = singleLogic.SendMessage
 	m[PMD_SINGLE_RECEIPT] = singleLogic.SendReceipt
 	m[PMD_ROOM_CREATE] = roomLogic.Create
+	m[PMD_ROOM_JOIN] = roomLogic.Join
 	m[PMD_ROOM_QUIT] = roomLogic.Quit
 	m[PMD_ROOM_INFO] = roomLogic.GetRoomInfo
-
 	return m
 }
