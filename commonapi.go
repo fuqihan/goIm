@@ -10,6 +10,16 @@ type SendMessageApi struct {
 	Now  uint   `json:"now"`  // 时间戳
 }
 
+/*
+	群聊发送
+*/
+type SendRoomMessageApi struct {
+	UserId string `json:"user_id"`
+	RoomId string `json:"room_id"`
+	Str    string `json:"str"`
+	Now    uint   `json:"now"`
+}
+
 type CreateRoomApi struct {
 	UserId   string `json:"user_id"`
 	RoomName string `json:"room_name"`

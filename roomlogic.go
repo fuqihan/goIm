@@ -17,6 +17,7 @@ type Roomer interface {
 	Join(conn net.Conn, data interface{})        // 加入房间
 	Quit(conn net.Conn, data interface{})        // 退出房间
 	GetRoomInfo(conn net.Conn, data interface{}) // 获取房间信息
+	SendMessage(conn net.Conn, data interface{}) // 群聊的聊天
 	//GetUserRoomList(conn net.Conn)        // 获取某一个用户的房间列表
 }
 
@@ -102,6 +103,12 @@ func (r *room) GetRoomInfo(conn net.Conn, data interface{}) {
 	} else {
 		SendConnMessageJson(conn, PMD_ROOM_INFO, SEND_CODE_ERROR, "不存在此房间")
 	}
+}
+
+func (r *room) SendMessage(conn net.Conn, data interface{}) {
+	obj := new(SendRoomMessageApi)
+	mapstructure.Decode(data, obj)
+
 }
 
 func NewRoomLogic() Roomer {
