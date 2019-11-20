@@ -30,8 +30,8 @@ func (s *single) SendMessage(conn net.Conn, data interface{}) {
 		if str, err := json.Marshal(message); err == nil {
 			ids := []string{message.To, message.Form}
 			sort.Strings(ids)
-			DBRedisConn.DoSet("LPUSH",
-				fmt.Sprintf(REDIS_USER_SINGLE_SEND, ids[0], ids[1]), str)
+			DBRedisConn.DoSetArgs("ZADD",
+				fmt.Sprintf(REDIS_USER_SINGLE_SEND, ids[0], ids[1]), message.Now, string(str))
 			//	初始化操作
 			if DBRedisConn.DoSismember(fmt.Sprintf(REDIS_USER_SWAP_LIST, ids[0]), ids[1]) == 0 {
 				DBRedisConn.DoSet("SADD",
@@ -39,7 +39,7 @@ func (s *single) SendMessage(conn net.Conn, data interface{}) {
 				DBRedisConn.DoSet("SADD",
 					fmt.Sprintf(REDIS_USER_SWAP_LIST, ids[1]), ids[0])
 				now := utils.GetTimeNow()
-				ma := &utils.MaptoArr{[]interface{}{}}
+				ma := utils.NewMapToArr()
 				ma.Add("createDate", now)
 				ma.Add("status", USER_STATUS_STRANGE)
 				DBRedisConn.DoSetArgs("HMSET",

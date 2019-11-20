@@ -10,16 +10,20 @@ var (
 /*
 	[key, val, key, val]
 */
-type MaptoArr struct {
+type maptoArr struct {
 	Arr []interface{}
 }
 
-func (ma *MaptoArr) Add(args ...interface{}) {
+func (ma *maptoArr) Add(args ...interface{}) {
 	ma.Arr = append(ma.Arr, args...)
 }
 
-func (ma *MaptoArr) Clone() {
+func (ma *maptoArr) Clone() {
 	ma.Arr = []interface{}{}
+}
+
+func NewMapToArr() *maptoArr {
+	return &maptoArr{Arr: []interface{}{}}
 }
 
 func GetTimeNow() int64 {

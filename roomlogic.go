@@ -1,6 +1,7 @@
 package goIm
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/goinggo/mapstructure"
 	"goIm/utils"
@@ -38,7 +39,7 @@ func (r *room) Create(conn net.Conn, data interface{}) {
 		DBRedisConn.DoSet("SADD", REDIS_ROOM_LIST, roomId)
 		DBRedisConn.DoSet("SADD", REDIS_ROOM_NAME_LIST, obj.RoomName)
 		//初始化房间详情
-		ma := &utils.MaptoArr{[]interface{}{}}
+		ma := utils.NewMapToArr()
 		ma.Add("createDate", now)
 		ma.Add("mode", ROOM_MODE_DEFAULT)
 		ma.Add("createUser", obj.UserId)
@@ -108,7 +109,19 @@ func (r *room) GetRoomInfo(conn net.Conn, data interface{}) {
 func (r *room) SendMessage(conn net.Conn, data interface{}) {
 	obj := new(SendRoomMessageApi)
 	mapstructure.Decode(data, obj)
+	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomId) != 0 {
+		if str, err := json.Marshal(obj); err == nil {
+			DBRedisConn.DoSetArgs("ZADD",
+				fmt.Sprint(REDIS_ROOM_MESSAGE, obj.RoomId), obj.Now, string(str))
+			if users := DBRedisConn.DoGetStrings("SMEMBERS",
+				fmt.Sprint(REDIS_ROOM_USERS, obj.RoomId)); users != nil {
+				for _, userId := range users {
+					SendUserMessage(userId, string(str))
+				}
+			}
+		}
 
+	}
 }
 
 func NewRoomLogic() Roomer {

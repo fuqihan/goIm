@@ -30,6 +30,8 @@ const (
 
 const (
 	//redis key
+	REDIS_ROOM_MESSAGE string = "room:message:%d"
+
 	REDIS_ROOM_LIST string = "room:list" // set
 
 	REDIS_ROOM_NAME_LIST string = "room:name:list"
