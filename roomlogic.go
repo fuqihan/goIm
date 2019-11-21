@@ -45,7 +45,7 @@ func (r *room) Create(conn net.Conn, data interface{}) {
 		ma.Add("createUser", obj.UserId)
 		ma.Add("name", obj.RoomName)
 		DBRedisConn.DoSetArgs("HMSET",
-			fmt.Sprintf(REDIS_ROOM_DETAIL, roomId), ma.Arr...)
+			fmt.Sprintf(REDIS_ROOM_DETAIL, string(roomId)), ma.Arr...)
 		// 初始化权限
 		DBRedisConn.DoSet("SADD",
 			fmt.Sprintf(REDIS_ROOM_ROLE, roomId, ROOM_ROLE_ADMIN), obj.UserId)

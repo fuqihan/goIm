@@ -47,8 +47,11 @@ func (s *single) SendMessage(conn net.Conn, data interface{}) {
 
 			}
 			SendUserMessage(message.To, string(str))
+			return
 		} else {
 			fmt.Println(err)
+			SendConnMessageJson(conn, PMD_SINGLE_SEND_MESSAGE, SEND_CODE_ERROR, "json序列化失败")
+			return
 		}
 	}
 	SendConnMessageJson(conn, PMD_SINGLE_SEND_MESSAGE, SEND_CODE_ERROR, ERROR_TEXT_PARAM)
@@ -59,11 +62,11 @@ func (s *single) SendReceipt(conn net.Conn, data interface{}) {
 	mapstructure.Decode(data, msg)
 	ids := []string{msg.To, msg.Form}
 	sort.Strings(ids)
-	var arrs []string
+	var arrs []interface{}
 	if ids[0] == msg.Form {
-		arrs = []string{"firstCurrentReceipt", string(msg.Now)}
+		arrs = []interface{}{"firstCurrentReceipt", msg.Now}
 	} else {
-		arrs = []string{"twoCurrentReceipt", string(msg.Now)}
+		arrs = []interface{}{"twoCurrentReceipt", msg.Now}
 	}
 	DBRedisConn.DoSetArgs("HSET",
 		fmt.Sprintf(REDIS_USER_SWAP_DETAIL, ids[0], ids[1]), arrs[0], arrs[1])

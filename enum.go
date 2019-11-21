@@ -36,7 +36,7 @@ const (
 
 	REDIS_ROOM_NAME_LIST string = "room:name:list"
 
-	REDIS_ROOM_DETAIL string = "room:detail:%d" // hash
+	REDIS_ROOM_DETAIL string = "room:detail:%s" // hash
 
 	REDIS_ROOM_ROLE string = "room:role:%d:%d"
 
@@ -48,7 +48,7 @@ const (
 
 	REDIS_USER_SWAP_LIST string = "user:swap:list:%s" // 每个人交流的列表
 
-	REDIS_USER_SWAP_DETAIL string = "user:swap:%S:%S"
+	REDIS_USER_SWAP_DETAIL string = "user:swap:%s:%s"
 
 	REDIS_USER_SINGLE_SEND string = "user:single:send:%s:%s" // 两个人之间的交流记录
 )

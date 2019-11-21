@@ -60,9 +60,10 @@ func ConnHandle(conn net.Conn, str string) {
 		fmt.Println(localUser.user)
 		return
 	}
-	if _, ok := localConn.conn[conn]; ok {
-		forRoute(conn, m.Pmd, m.Data)
-	}
+	forRoute(conn, m.Pmd, m.Data)
+	//if _, ok := localConn.conn[conn]; ok {
+	//	forRoute(conn, m.Pmd, m.Data)
+	//}
 }
 
 func SendUserMessage(userId string, str string) {
