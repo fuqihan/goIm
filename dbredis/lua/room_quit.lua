@@ -10,7 +10,8 @@ local REDIS_ROOM_USERS, REDIS_ROOM_USER_INFO, REDIS_USER_ROOMS = KEYS[1], KEYS[2
 local RoomId, UserIds = ARGV[1], cmsgpack.unpack(ARGV[2])
 
 for v, userId in ipairs(UserIds) do
-    redis.call("SMOVE", string.format(REDIS_ROOM_USERS, RoomId), userId)
-    redis.call("HDEL", string.format(REDIS_ROOM_USER_INFO, RoomId, userId))
-    redis.call("SMOVE", string.format(REDIS_USER_ROOMS, userId), RoomId)
+--    redis.call("SET", "aa", string.format(REDIS_ROOM_USERS, RoomId))
+    redis.call("SREM", string.format(REDIS_ROOM_USERS, RoomId), userId)
+--    redis.call("HDEL", string.format(REDIS_ROOM_USER_INFO, RoomId, userId))
+    redis.call("SREM", string.format(REDIS_USER_ROOMS, userId), RoomId)
 end

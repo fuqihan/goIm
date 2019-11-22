@@ -99,8 +99,13 @@ func (r *room) GetRoomInfo(conn net.Conn, data interface{}) {
 	obj := new(GetRoomInfoApi)
 	mapstructure.Decode(data, obj)
 	if DBRedisConn.DoSismember(REDIS_ROOM_LIST, obj.RoomId) != 0 {
-		str := DBRedisConn.DoGet("HGET", fmt.Sprintf(REDIS_ROOM_DETAIL, obj.RoomId))
-		SendConnMessageJson(conn, PMD_ROOM_INFO, SEND_CODE_SUCCESS, str)
+		m := DBRedisConn.DoGetStringMap("HGETALL", fmt.Sprintf(REDIS_ROOM_DETAIL, obj.RoomId))
+		if str, err := json.Marshal(m); err == nil {
+			SendConnMessageJson(conn, PMD_ROOM_INFO, SEND_CODE_SUCCESS, string(str))
+		} else {
+			SendConnMessageJson(conn, PMD_ROOM_INFO, SEND_CODE_ERROR, "json解析失败")
+		}
+
 	} else {
 		SendConnMessageJson(conn, PMD_ROOM_INFO, SEND_CODE_ERROR, "不存在此房间")
 	}
