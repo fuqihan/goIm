@@ -85,5 +85,21 @@ func TestRoom_GetRoomInfo(t *testing.T) {
 }
 
 func TestRoom_SendMessage(t *testing.T) {
-
+	if conn, err := InitTestDial("3000"); err == nil {
+		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+			obj := new(SendApi)
+			utils.ParseJson(s, obj)
+			fmt.Println(obj)
+			if obj.Code != SEND_CODE_SUCCESS {
+				t.Errorf("返回错误 %s, 应该返回", s)
+			}
+			return
+		})
+		userId := "aaaa"
+		now := utils.GetTimeNow()
+		joinStr := fmt.Sprintf(`{"pmd": %d, "data": {"roomId": %d, "userId", "%s", str: "asasasas", now: %d}}`,
+			PMD_ROOM_SEND_MESSAGE, 1, userId, now)
+		SendConnMessageStr(conn, joinStr)
+		time.Sleep(1e9)
+	}
 }

@@ -19,6 +19,8 @@ const (
 	PMD_ROOM_QUIT int = 3003
 
 	PMD_ROOM_INFO int = 3004
+
+	PMD_ROOM_SEND_MESSAGE int = 3005
 )
 
 const (
