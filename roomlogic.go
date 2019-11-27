@@ -15,11 +15,11 @@ const (
 
 type Roomer interface {
 	Create(conn net.Conn, data interface{})
-	Join(conn net.Conn, data interface{})        // 加入房间
-	Quit(conn net.Conn, data interface{})        // 退出房间
-	GetRoomInfo(conn net.Conn, data interface{}) // 获取房间信息
-	SendMessage(conn net.Conn, data interface{}) // 群聊的聊天
-	GetUserRoomList(conn net.Conn)               // 获取某一个用户的房间列表
+	Join(conn net.Conn, data interface{})            // 加入房间
+	Quit(conn net.Conn, data interface{})            // 退出房间
+	GetRoomInfo(conn net.Conn, data interface{})     // 获取房间信息
+	SendMessage(conn net.Conn, data interface{})     // 群聊的聊天
+	GetUserRoomList(conn net.Conn, data interface{}) // 获取某一个用户的房间列表
 }
 
 type room struct {
@@ -129,8 +129,10 @@ func (r *room) SendMessage(conn net.Conn, data interface{}) {
 	}
 }
 
-func (r *room) GetUserRoomList(conn net.Conn) {
-
+func (r *room) GetUserRoomList(conn net.Conn, data interface{}) {
+	obj := new(GetUserRoomListApi)
+	mapstructure.Decode(data, obj)
+	//DBRedisConn.DoGetStrings(REDIS_USER_ROOMS)
 }
 
 func NewRoomLogic() Roomer {

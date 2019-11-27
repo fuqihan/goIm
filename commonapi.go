@@ -25,6 +25,10 @@ type CreateRoomApi struct {
 	RoomName string `json:"room_name"`
 }
 
+type GetUserRoomListApi struct {
+	UserId string `json:"user_id"`
+}
+
 /*
 	加入房间
 */
