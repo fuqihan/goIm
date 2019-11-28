@@ -95,7 +95,7 @@ func TestRoom_SendMessage(t *testing.T) {
 			}
 			return
 		})
-		userId := "aaaa"
+		userId := "aaaa1"
 		now := utils.GetTimeNow()
 		joinStr := fmt.Sprintf(`{"pmd": %d, "data": {"roomId": %d, "userId", "%s", str: "asasasas", now: %d}}`,
 			PMD_ROOM_SEND_MESSAGE, 1, userId, now)
