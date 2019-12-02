@@ -93,7 +93,6 @@ func TestRoom_SendMessage(t *testing.T) {
 			if obj.Code != SEND_CODE_SUCCESS {
 				t.Errorf("返回错误 %s, 应该返回", s)
 			}
-
 			return
 		})
 		userId := "aaaa1"
