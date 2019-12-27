@@ -8,6 +8,7 @@ var (
 )
 
 /*
+	用于传给args的接口，像是redis的那种 cmd keyName key val
 	[key, val, key, val]
 */
 type maptoArr struct {
@@ -28,5 +29,4 @@ func NewMapToArr() *maptoArr {
 
 func GetTimeNow() int64 {
 	return time.Now().In(_CST_ZONE).Unix()
-
 }

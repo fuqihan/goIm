@@ -15,11 +15,12 @@ var (
 	端口重复测试
 */
 func TestBootstrapRepeat(t *testing.T) {
-	go Bootstrap(iPort)
-	time.Sleep(1e9)
-	if conn, err := net.Listen("tcp", "127.0.0.1:"+iPort); err == nil {
+	op := NewIMOptions()
+	go Bootstrap(op)
+	time.Sleep(2e9)
+	if conn, err := net.Listen("tcp", "0.0.0.0:3000"); err == nil {
 		conn.Close()
-		t.Errorf("Bootstrap port %q 不应该连接失败", iPort)
+		t.Errorf("Bootstrap port %q 不应该连接成功", iPort)
 	}
 }
 
@@ -51,7 +52,8 @@ func InitTestDial(port string) (net.Conn, error) {
 	if conn, err := net.Dial("tcp", address); err == nil {
 		return conn, nil
 	} else {
-		go Bootstrap(port)
+		op := NewIMOptions()
+		go Bootstrap(op)
 		time.Sleep(time.Second)
 		if conn1, err1 := net.Dial("tcp", address); err1 == nil {
 			return conn1, nil

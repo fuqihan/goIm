@@ -6,24 +6,47 @@ import (
 	"goIm/utils"
 	"log"
 	"net"
-	"strings"
 )
+
+const (
+	_defaultPort uint = 3000
+)
+
+type IMOptions struct {
+	redisConfig *dbredis.ConnOptions
+	port        uint
+	address     string
+	ssl         bool
+}
+
+func NewIMOptions() *IMOptions {
+	c := new(IMOptions)
+	c.setPtrs()
+	return c
+}
+
+func (op *IMOptions) setPtrs() {
+	op.redisConfig = new(dbredis.ConnOptions)
+	op.port = _defaultPort
+	op.address = "0.0.0.0"
+	op.ssl = false
+}
 
 /**
 启动类
 */
-func Bootstrap(port string) error {
+func Bootstrap(op *IMOptions) error {
 	//strings.Join()
-	urls := []string{"127.0.0.1:", port}
-	log.Println(port, "tcp启动")
+	address := fmt.Sprintf("%s:%d", op.address, op.port)
+	log.Println(op.port, "tcp启动")
 	// TODO 换成ListenTCP 开启keep-alive
-	listen, err := net.Listen("tcp", strings.Join(urls, ""))
+	listen, err := net.Listen("tcp", address)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	log.Println(port, "tcp启动成功")
-	dbRedisBootstrap()
+	log.Println(op.port, "tcp启动成功")
+	//dbRedisBootstrap()
 	UUIDBootstrap()
 	for {
 		c, err := listen.Accept()
