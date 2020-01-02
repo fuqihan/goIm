@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -28,6 +29,7 @@ type ConnOptions struct {
 	host     string
 	port     uint32
 	password string
+	prefix   string
 }
 
 type redisConn struct {
@@ -43,9 +45,13 @@ var (
 /*
 	创建连接
 */
-func CreateConn() (RedisHandler, error) {
-	if conn, err := redis.Dial("tcp", "112.74.61.35:6379"); err == nil {
-		conn.Do("AUTH", "112233")
+func CreateConn(c *ConnOptions) (RedisHandler, error) {
+	address := []string{c.host, strconv.Itoa(int(c.port))}
+	if conn, err := redis.Dial("tcp", strings.Join(address, ":")); err == nil {
+		conn.Do("AUTH", c.password)
+		if c.prefix != "" {
+			_prefix = c.prefix
+		}
 		return &redisConn{conn: conn}, nil
 	} else {
 		fmt.Println(err)
