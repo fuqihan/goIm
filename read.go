@@ -15,7 +15,7 @@ var (
 /**
 接受信息处理
 */
-func ReadConnMessage(c net.Conn, fn func(conn net.Conn, s string)) {
+func ReadConnMessage(c net.Conn, op *IMOptions, fn func(conn net.Conn, s string, op *IMOptions)) {
 	// TODO 添加字节长度配置
 	data := make([]byte, 1000)
 	result := bytes.NewBuffer(nil)
@@ -34,7 +34,7 @@ func ReadConnMessage(c net.Conn, fn func(conn net.Conn, s string)) {
 		scanner.Split(packetSplitFunc)
 		for scanner.Scan() {
 			//fmt.Println(string(scanner.Bytes()))
-			go fn(c, string(scanner.Bytes()))
+			go fn(c, string(scanner.Bytes()), op)
 		}
 	}
 }

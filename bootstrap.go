@@ -12,11 +12,18 @@ const (
 	_defaultPort uint = 3000
 )
 
+const (
+	PARSE_IOTA = iota
+	PARSE_JSON
+	PARSE_PROTO
+)
+
 type IMOptions struct {
 	redisConfig *dbredis.ConnOptions
 	port        uint
 	address     string
 	ssl         bool
+	parseClass  uint // json or proto default json
 }
 
 func NewIMOptions() *IMOptions {
@@ -30,6 +37,7 @@ func (op *IMOptions) setPtrs() {
 	op.port = _defaultPort
 	op.address = "0.0.0.0"
 	op.ssl = false
+	op.parseClass = PARSE_JSON
 }
 
 /**
@@ -54,12 +62,13 @@ func Bootstrap(op *IMOptions) error {
 			fmt.Println(err)
 			continue
 		}
-		go ReadConnMessage(c, ConnHandle)
+		go ReadConnMessage(c, op, ConnHandle)
 	}
 }
 
 func dbRedisBootstrap() {
-	DBRedisConn, _ = dbredis.CreateConn()
+	redisOp := new(dbredis.ConnOptions)
+	DBRedisConn, _ = dbredis.CreateConn(redisOp)
 }
 
 func UUIDBootstrap() {

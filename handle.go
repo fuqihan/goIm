@@ -34,13 +34,9 @@ var (
 /**
 读取文件处理
 */
-func ConnHandle(conn net.Conn, str string) {
+func ConnHandle(conn net.Conn, str string, op *IMOptions) {
 	m := new(ReadSApi)
-	// TODO  添加配置支持proto
-	if err := utils.ParseJson(str, m); err != nil {
-		SendConnMessageJson(conn, 0, 0, "json格式错误")
-		return
-	}
+	parseMessage(conn, str, m, op.parseClass)
 	// 判读
 	if m.Pmd == PMD_LOGIN && m.Token != "" {
 		localUser.mu.Lock()
@@ -64,6 +60,20 @@ func ConnHandle(conn net.Conn, str string) {
 	//if _, ok := localConn.conn[conn]; ok {
 	//	forRoute(conn, m.Pmd, m.Data)
 	//}
+}
+
+func parseMessage(conn net.Conn, str string, m interface{}, parseClass uint) {
+	switch parseClass {
+	default:
+	//	error
+	case PARSE_JSON:
+		if err := utils.ParseJson(str, m); err != nil {
+			SendConnMessageJson(conn, 0, 0, "json格式错误")
+			return
+		}
+	case PARSE_PROTO:
+
+	}
 }
 
 func SendUserMessage(userId string, str string) {
