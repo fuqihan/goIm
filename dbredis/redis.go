@@ -26,10 +26,10 @@ type RedisHandler interface {
 }
 
 type ConnOptions struct {
-	host     string
-	port     uint32
-	password string
-	prefix   string
+	Host     string
+	Port     uint32
+	Password string
+	Prefix   string
 }
 
 type redisConn struct {
@@ -46,11 +46,11 @@ var (
 	创建连接
 */
 func CreateConn(c *ConnOptions) (RedisHandler, error) {
-	address := []string{c.host, strconv.Itoa(int(c.port))}
+	address := []string{c.Host, strconv.Itoa(int(c.Port))}
 	if conn, err := redis.Dial("tcp", strings.Join(address, ":")); err == nil {
-		conn.Do("AUTH", c.password)
-		if c.prefix != "" {
-			_prefix = c.prefix
+		conn.Do("AUTH", c.Password)
+		if c.Prefix != "" {
+			_prefix = c.Prefix
 		}
 		return &redisConn{conn: conn}, nil
 	} else {

@@ -68,6 +68,9 @@ func Bootstrap(op *IMOptions) error {
 
 func dbRedisBootstrap() {
 	redisOp := new(dbredis.ConnOptions)
+	redisOp.Host = "49.235.242.138"
+	redisOp.Port = 6379
+	redisOp.Password = "123456"
 	DBRedisConn, _ = dbredis.CreateConn(redisOp)
 }
 
