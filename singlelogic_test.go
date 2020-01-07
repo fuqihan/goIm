@@ -9,8 +9,9 @@ import (
 )
 
 func TestSingle_SendMessage(t *testing.T) {
-	if conn, err := InitTestDial("3000"); err == nil {
-		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+	op := NewIMOptions()
+	if conn, err := InitTestDial("3000", op); err == nil {
+		go ReadConnMessage(conn, op, func(conn net.Conn, s string, op *IMOptions) {
 			obj := new(SendApi)
 			utils.ParseJson(s, obj)
 			if obj.Code != SEND_CODE_SUCCESS {
@@ -31,8 +32,9 @@ func TestSingle_SendMessage(t *testing.T) {
 }
 
 func TestSingle_SendReceipt(t *testing.T) {
-	if conn, err := InitTestDial("3000"); err == nil {
-		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+	op := NewIMOptions()
+	if conn, err := InitTestDial("3000", op); err == nil {
+		go ReadConnMessage(conn, op, func(conn net.Conn, s string, op *IMOptions) {
 			obj := new(SendApi)
 			utils.ParseJson(s, obj)
 			if obj.Code != SEND_CODE_SUCCESS {

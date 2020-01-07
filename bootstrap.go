@@ -54,7 +54,7 @@ func Bootstrap(op *IMOptions) error {
 		return err
 	}
 	log.Println(op.port, "tcp启动成功")
-	//dbRedisBootstrap()
+	dbRedisBootstrap()
 	UUIDBootstrap()
 	for {
 		c, err := listen.Accept()
@@ -70,7 +70,7 @@ func dbRedisBootstrap() {
 	redisOp := new(dbredis.ConnOptions)
 	redisOp.Host = "49.235.242.138"
 	redisOp.Port = 6379
-	redisOp.Password = "123456"
+	redisOp.Password = "aliyunsb"
 	DBRedisConn, _ = dbredis.CreateConn(redisOp)
 }
 

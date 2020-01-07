@@ -9,10 +9,11 @@ import (
 )
 
 func TestRoom_Create(t *testing.T) {
-	if conn, err := InitTestDial("3000"); err == nil {
+	op := NewIMOptions()
+	if conn, err := InitTestDial("3000", op); err == nil {
 		userId := "aaaa"
 		roomName := "asasass"
-		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+		go ReadConnMessage(conn, op, func(conn net.Conn, s string, op *IMOptions) {
 			obj := new(SendApi)
 			utils.ParseJson(s, obj)
 			if obj.Code != SEND_CODE_SUCCESS {
@@ -29,9 +30,10 @@ func TestRoom_Create(t *testing.T) {
 }
 
 func TestRoom_Join(t *testing.T) {
-	if conn, err := InitTestDial("3000"); err == nil {
+	op := NewIMOptions()
+	if conn, err := InitTestDial("3000", op); err == nil {
 		userId := "aaaa"
-		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+		go ReadConnMessage(conn, op, func(conn net.Conn, s string, op *IMOptions) {
 			obj := new(SendApi)
 			utils.ParseJson(s, obj)
 			if obj.Code != SEND_CODE_SUCCESS {
@@ -48,9 +50,10 @@ func TestRoom_Join(t *testing.T) {
 }
 
 func TestRoom_Quit(t *testing.T) {
-	if conn, err := InitTestDial("3000"); err == nil {
+	op := NewIMOptions()
+	if conn, err := InitTestDial("3000", op); err == nil {
 		userId := "aaaa"
-		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+		go ReadConnMessage(conn, op, func(conn net.Conn, s string, op *IMOptions) {
 			obj := new(SendApi)
 			utils.ParseJson(s, obj)
 			if obj.Code != SEND_CODE_SUCCESS {
@@ -67,8 +70,9 @@ func TestRoom_Quit(t *testing.T) {
 }
 
 func TestRoom_GetRoomInfo(t *testing.T) {
-	if conn, err := InitTestDial("3000"); err == nil {
-		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+	op := NewIMOptions()
+	if conn, err := InitTestDial("3000", op); err == nil {
+		go ReadConnMessage(conn, op, func(conn net.Conn, s string, op *IMOptions) {
 			obj := new(SendApi)
 			utils.ParseJson(s, obj)
 			fmt.Println(obj)
@@ -85,8 +89,9 @@ func TestRoom_GetRoomInfo(t *testing.T) {
 }
 
 func TestRoom_SendMessage(t *testing.T) {
-	if conn, err := InitTestDial("3000"); err == nil {
-		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+	op := NewIMOptions()
+	if conn, err := InitTestDial("3000", op); err == nil {
+		go ReadConnMessage(conn, op, func(conn net.Conn, s string, op *IMOptions) {
 			obj := new(SendApi)
 			utils.ParseJson(s, obj)
 			fmt.Println(obj)

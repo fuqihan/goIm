@@ -28,9 +28,10 @@ func TestBootstrapRepeat(t *testing.T) {
 	文件写测试
 */
 func TestRead(t *testing.T) {
-	if conn, err := InitTestDial(iPort); err == nil {
+	op := NewIMOptions()
+	if conn, err := InitTestDial(iPort, op); err == nil {
 		strs := []string{"a", "b"}
-		go ReadConnMessage(conn, func(conn net.Conn, s string) {
+		go ReadConnMessage(conn, op, func(conn net.Conn, s string, op *IMOptions) {
 			//_, _ := strconv.Atoi(s)
 			//if a != ERROR_PARSE_JSON {
 			//	t.Errorf("返回错误 %s, 应该返回 %d", s, ERROR_PARSE_JSON)
@@ -47,12 +48,11 @@ func TestRead(t *testing.T) {
 /*
 	初始化客户端连接
 */
-func InitTestDial(port string) (net.Conn, error) {
+func InitTestDial(port string, op *IMOptions) (net.Conn, error) {
 	address := ":" + port
 	if conn, err := net.Dial("tcp", address); err == nil {
 		return conn, nil
 	} else {
-		op := NewIMOptions()
 		go Bootstrap(op)
 		time.Sleep(time.Second)
 		if conn1, err1 := net.Dial("tcp", address); err1 == nil {
