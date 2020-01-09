@@ -21,7 +21,6 @@ const (
 type IMOptions struct {
 	redisConfig *dbredis.ConnOptions
 	port        uint
-	address     string
 	ssl         bool
 	parseClass  uint // json or proto default json
 }
@@ -35,7 +34,6 @@ func NewIMOptions() *IMOptions {
 func (op *IMOptions) setPtrs() {
 	op.redisConfig = new(dbredis.ConnOptions)
 	op.port = _defaultPort
-	op.address = "0.0.0.0"
 	op.ssl = false
 	op.parseClass = PARSE_JSON
 }
@@ -44,11 +42,11 @@ func (op *IMOptions) setPtrs() {
 启动类
 */
 func Bootstrap(op *IMOptions) error {
-	//strings.Join()
-	address := fmt.Sprintf("%s:%d", op.address, op.port)
 	log.Println(op.port, "tcp启动")
 	// TODO 换成ListenTCP 开启keep-alive
-	listen, err := net.Listen("tcp", address)
+	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf(":%d", op.port))
+
+	listen, err := net.ListenTCP("tcp", tcpAddr)
 	if err != nil {
 		fmt.Println(err)
 		return err
